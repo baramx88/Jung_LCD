@@ -17,7 +17,8 @@
 #define MAX_HISTORY_SIZE 10  // 저장할 명령어 히스토리 개수
 #define ESC_CHAR '\x1B'      // 이스케이프 문자
 
-#define CONSOLE_PROMPT "Console> "
+//#define CONSOLE_PROMPT "Console> "
+#define CONSOLE_PROMPT "> "
 
 // 명령어 목록
 const ConsoleCommand commands[] = {
@@ -315,7 +316,15 @@ void processCommand(const char* cmd) {
     }
     Serial.println("Unknown command. Type 'help' for available commands.");
 }
-
+#if 1
+void printHelp(const char* params) {
+    Serial.printf("Available commands:\n");
+    for (int i = 0; commands[i].command != NULL; i++) {
+        delay(5);
+        Serial.printf("%s - %s\n", commands[i].command, commands[i].description);        
+    }
+}
+#else
 void printHelp(const char* params) {
     Serial.println("Available commands:");
     for (int i = 0; commands[i].command != NULL; i++) {
@@ -325,6 +334,7 @@ void printHelp(const char* params) {
         Serial.println(commands[i].description);
     }
 }
+#endif
 
 void parseParams(const char* params, char* param1, char* param2) {
     char* token;
