@@ -14,8 +14,9 @@
 #include "lvgl_controller.h"
 #include "audio.h"
 #include "console.h"
-#include "serial.h"
+#include "serial_lcd.h"
 #include "menu.h"
+#include "event.h"
 
 // Task handles
 TaskHandle_t displayTaskHandle = NULL;
@@ -43,6 +44,8 @@ void initializeSystem() {
     } else {
         logMessage("Setup", LOG_LEVEL_INFO, "Failed to get GFX instance, touch initialization skipped");
     }
+
+    current_ui_state.initialized = false;
     // Create main UI
     lvgl_create_app_ui();
     
@@ -57,6 +60,7 @@ void initializeSystem() {
         backlightInitialized = true;
         logMessage("DISPLAY", LOG_LEVEL_INFO, "Backlight initialized");
     #endif
+    
     #endif
     logMessage("Setup", LOG_LEVEL_INFO, "System initialization completed");
 }
@@ -123,6 +127,9 @@ void setup() {
         1                 // Core where the task should run
     );
     
+    // UI anumation용
+    setupAnimationTask();
+
     xTaskCreatePinnedToCore(
         TaskConsole,
         "Console",
@@ -132,6 +139,11 @@ void setup() {
          NULL,
          0);
 
+    //vTaskDelay(pdMS_TO_TICKS(1000));
+
+    #if 1
+    serial_lcd_init();
+    #else
     xTaskCreatePinnedToCore(
         serialTask,       // Function to implement the task
         "SerialTask",     // Name of the task
@@ -141,6 +153,9 @@ void setup() {
         &serialTaskHandle,// Task handle
         0                 // Core where the task should run
     );
+    #endif
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    current_ui_state.initialized = true;
     
     logMessage("Setup", LOG_LEVEL_INFO, "All tasks created and started");
 }

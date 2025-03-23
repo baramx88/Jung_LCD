@@ -7,11 +7,13 @@
 #include "LittleFS.h"
 
 #include "common.h"
+#include "lvgl_controller.h"
 #include "console.h"
 #include "audio.h"
-#include "serial_protocol.h"
-//#include "serial.h"
+//#include "serial_protocol.h"
+#include "serial_lcd.h"
 //#include "sd_utils.h"
+#include "menu.h"
 
 #define MAX_COMMAND_LENGTH 128
 #define MAX_HISTORY_SIZE 10  // 저장할 명령어 히스토리 개수
@@ -33,6 +35,10 @@ const ConsoleCommand commands[] = {
     {"audio_urine", "Play Urine Sound (audio_urine)", handleAudioUrine},
     {"audio_stop", "Stop Sound (audio_stop)", handleAudioStop},
     {"audio_status", "Get Sound Status (audio_status)", handleAudioStatus},
+    {"ui_status", "Get All UI Status Flags (ui_status)", handleUiStatus},
+    {"ui_motor_on", "Play UI Motor On (ui_motor_on)", handleUiMotorOn},
+    {"ui_motor_off", "Play UI Motor Off (ui_motor_off)", handleUiMotorOff},
+    
 //    {"test_serial", "Test Serial protocol (test_serial 1 or 0)", handleTestSerial},
 //    {"debug_level", "Set debug level (0:DEBUG, 1:INFO, 2:WARN, 3:ERROR)", handleDebugLevel},
 //    {"ls", "List saved MQTT files and storage info", handleListFiles},
@@ -582,6 +588,31 @@ void handleAudioStatus(const char* params) {
 void handleAudioStop(const char* params) {
     Serial.printf("Will Stop Sound");
     stop_sound();
+}
+void handleUiMotorOn(const char* params) {
+    Serial.printf("Motor On UI Activate");
+    Event_motor_ON();
+}
+void handleUiMotorOff(const char* params) {
+    Serial.printf("Motor Off UI Activate");
+    need_to_restore_motor = false;
+    Event_motor_OFF();
+}
+
+void handleUiStatus(const char* params) {
+    Serial.println("=== UI Status Flags ===");
+    Serial.printf("Cover: %s\n", cover_OPEN ? "OPEN" : "CLOSED");
+    Serial.printf("Motor: %s\n", motor_ON ? "ON" : "OFF");
+    Serial.printf("WiFi: %s\n", wifi_ON ? "ON" : "OFF");
+    Serial.printf("Error: %s\n", error_ON ? "ON" : "OFF");
+    Serial.printf("Urine Detection: %s\n", urine_ON ? "DETECTED" : "NONE");
+    Serial.printf("Server Connect: %s\n", connect_ON ? "CONNECTED" : "DISCONNECTED");
+    Serial.printf("Diaper: %s\n", diaper_ON ? "ATTACHED" : "DETACHED");
+    Serial.printf("Full Level: %s\n", fulllevel_ON ? "REACHED" : "NOT REACHED");
+    Serial.printf("Power: %s\n", power_ON ? "ON" : "OFF");
+    Serial.printf("Menu Mode: %s\n", menu_ON ? "ACTIVE" : "INACTIVE");
+    Serial.printf("Water Level: %d ml\n", water_level);
+    Serial.println("=====================");
 }
 #if 0
 void handleDebugLevel(const char* params) {

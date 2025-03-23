@@ -10,10 +10,28 @@ typedef enum {
     DISP_LARGE,
 } disp_size_t;
 
+// UI 상태 구조체 (각 요소의 현재 상태 저장)
+typedef struct {
+    bool connect_state;
+    bool diaper_state;
+    bool error_state;
+    bool feces_state;
+    bool wifi_state;
+    int bat_state;  // 0: OFF, 1: ON, 2: LOW로 변경
+    bool power_state;
+    float water_level;
+
+    bool initialized;
+} UIState;
+
 // Function declarations
 void lvgl_init(void);
+void updateUI();
+
 void lvgl_create_app_ui(void);
 void lvgl_update_app_ui(void);
+
+extern char timestamp_display[20];
 
 // External references to UI objects as needed
 extern lv_obj_t *main_screen;
@@ -55,6 +73,10 @@ extern int fulllevel_ON;
 extern int power_ON;
 extern int menu_ON;
 extern int water_level;
+
+extern volatile UIState current_ui_state;
+extern volatile bool ui_update_requested;
+
 
 LV_IMG_DECLARE(img_bg);
 
